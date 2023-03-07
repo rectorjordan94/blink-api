@@ -1,24 +1,38 @@
 const mongoose = require('mongoose')
 
-const exampleSchema = new mongoose.Schema(
+const channelSchema = new mongoose.Schema(
 	{
-		title: {
+		name: {
+			type: String,
+			required: true,
+		}, 
+		description: {
 			type: String,
 			required: true,
 		},
-		text: {
+		type: {
 			type: String,
 			required: true,
+			enum: ['DM', 'GROUP'],
+			default: 'GROUP'
 		},
 		owner: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User',
 			required: true,
 		},
+		members: [{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'User'
+		}],
+		threads: [{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Thread'
+		}]
 	},
 	{
 		timestamps: true,
 	}
 )
 
-module.exports = mongoose.model('Example', exampleSchema)
+module.exports = mongoose.model('Example', channelSchema)

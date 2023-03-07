@@ -114,9 +114,12 @@ router.delete('/profiles/:id', requireToken, (req, res, next) => {
 			User.findById(req.user.id)
 				.then(handle404)
 				.then((user) => {
+					// delete the user
 					user.deleteOne()
 				})
+				// send back 204 and no content if delete succeeded
 				.then(() => res.sendStatus(204))
+				// if an error occurs pass it to the handler
 				.catch(next)
 		})
 		// // send back 204 and no content if the deletion succeeded

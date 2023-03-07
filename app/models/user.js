@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema(
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Profile'
 		},
+		channels: [{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Channel'
+		}],
 		token: String,
 	},
 	{
