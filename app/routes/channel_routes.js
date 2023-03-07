@@ -33,6 +33,9 @@ const router = express.Router()
 // GET /channels
 router.get('/channels', requireToken, (req, res, next) => {
 	Channel.find()
+	// populate user emails in channels for testing purposes, 
+	//! remove this later
+		.populate('members', 'email')
 		.then((channels) => {
 			// `channels` will be an array of Mongoose documents
 			// we want to convert each one to a POJO, so we use `.map` to
@@ -80,20 +83,48 @@ router.patch('/channels/:id', requireToken, removeBlanks, (req, res, next) => {
 	// if the client attempts to change the `owner` property by including a new
 	// owner, prevent that by deleting that key/value pair
 	delete req.body.channel.owner
-
 	Channel.findById(req.params.id)
 		.then(handle404)
 		.then((channel) => {
 			// pass the `req` object and the Mongoose record to `requireOwnership`
 			// it will throw an error if the current user isn't the owner
 			requireOwnership(req, channel)
-
 			// pass the result of Mongoose's `.update` to the next `.then`
 			return channel.updateOne(req.body.channel)
 		})
 		// if that succeeded, return 204 and no JSON
 		.then(() => res.sendStatus(204))
 		// if an error occurs, pass it to the handler
+		.catch(next)
+})
+
+// UPDATE - Add member to channel
+// PATCH /
+router.patch('/channels/:channelId/:userId', requireToken, removeBlanks, (req, res, next) => {
+	// delete req.body.channel.owner 
+	// grab the id's from req.params
+	const { channelId, userId } = req.params
+
+	// find the channel by its id
+	Channel.findById(channelId)
+		.then(handle404)
+		.then((channel) => {
+			requireOwnership(req, channel)
+			// check to make sure that the channel's member ref array doesn't already include the user you're adding
+			if (!channel.members.includes(userId)) {
+				// if it doesn't, find the user by their id
+				User.findById(userId)
+					.then(user => {
+						// push the user onto the channel's members array
+						channel.members.push(user)
+						return channel.save()
+					})
+					// if that succeeded, return 204 and no JSON
+					.then(() => res.sendStatus(204))
+					.catch(next)
+			}
+		})
+		// if an error occurs, pass to handler
 		.catch(next)
 })
 

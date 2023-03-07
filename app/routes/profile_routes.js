@@ -106,14 +106,11 @@ router.delete('/profiles/:id', requireToken, (req, res, next) => {
 			// throw an error if current user doesn't own `profile`
 			requireOwnership(req, profile)
 			// delete the profile ONLY IF the above didn't throw
-			profile.deleteOne()
-		})
-		// after profile is deleted, need to also delete the user
-		.then(() => {
-			// find the user by their id
 			User.findById(req.user.id)
 				.then(handle404)
 				.then((user) => {
+					// delete the profile
+					profile.deleteOne()
 					// delete the user
 					user.deleteOne()
 				})
@@ -121,11 +118,13 @@ router.delete('/profiles/:id', requireToken, (req, res, next) => {
 				.then(() => res.sendStatus(204))
 				// if an error occurs pass it to the handler
 				.catch(next)
+			// profile.deleteOne()
 		})
-		// // send back 204 and no content if the deletion succeeded
-		// .then(() => res.sendStatus(204))
-		// // if an error occurs, pass it to the handler
-		// .catch(next)
+		// if an error occurs, pass it to the handler
+		.catch(next)
 })
 
 module.exports = router
+
+// 6407a43315ac3ba75ed2da72 t@t.t
+// 6407a44df5bc2b625cf762c5 a@a.a
