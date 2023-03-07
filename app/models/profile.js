@@ -18,7 +18,7 @@ const profileSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		userRef: {
+		owner: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User',
 			required: true,
@@ -29,4 +29,4 @@ const profileSchema = new mongoose.Schema(
 	}
 )
 
-module.exports = mongoose.model('Example', exampleSchema)
+module.exports = mongoose.model('Example', profileSchema)

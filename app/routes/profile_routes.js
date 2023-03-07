@@ -5,6 +5,8 @@ const passport = require('passport')
 
 // pull in Mongoose model for profiles
 const Profile = require('../models/profile')
+// pull in Mongoose model for user
+const User = require('../models/user')
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
@@ -30,7 +32,7 @@ const router = express.Router()
 // INDEX
 // GET /profiles
 router.get('/profiles', requireToken, (req, res, next) => {
-	Example.find()
+	Profile.find()
 		.then((profiles) => {
 			// `profiles` will be an array of Mongoose documents
 			// we want to convert each one to a POJO, so we use `.map` to
@@ -50,7 +52,7 @@ router.get('/profiles/:id', requireToken, (req, res, next) => {
 	Profile.findById(req.params.id)
 		.then(handle404)
 		// if `findById` is succesful, respond with 200 and "profile" JSON
-		.then((profile) => res.status(200).json({ profile: example.toObject() }))
+		.then((profile) => res.status(200).json({ profile: profile.toObject() }))
 		// if an error occurs, pass it to the handler
 		.catch(next)
 })
@@ -106,10 +108,21 @@ router.delete('/profiles/:id', requireToken, (req, res, next) => {
 			// delete the profile ONLY IF the above didn't throw
 			profile.deleteOne()
 		})
-		// send back 204 and no content if the deletion succeeded
-		.then(() => res.sendStatus(204))
-		// if an error occurs, pass it to the handler
-		.catch(next)
+		// after profile is deleted, need to also delete the user
+		.then(() => {
+			// find the user by their id
+			User.findById(req.user.id)
+				.then(handle404)
+				.then((user) => {
+					user.deleteOne()
+				})
+				.then(() => res.sendStatus(204))
+				.catch(next)
+		})
+		// // send back 204 and no content if the deletion succeeded
+		// .then(() => res.sendStatus(204))
+		// // if an error occurs, pass it to the handler
+		// .catch(next)
 })
 
 module.exports = router
