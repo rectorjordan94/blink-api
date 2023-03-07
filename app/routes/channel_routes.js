@@ -98,32 +98,45 @@ router.patch('/channels/:id', requireToken, removeBlanks, (req, res, next) => {
 		.catch(next)
 })
 
-// UPDATE - Add member to channel
-// PATCH /
-router.patch('/channels/:channelId/:userId', requireToken, removeBlanks, (req, res, next) => {
-	// delete req.body.channel.owner 
+// UPDATE - Add/remove member to/from channel
+// PATCH /channels/6407a49fa65fefda5bf50214/6407a5be5613cc597f002aaa
+router.patch('/channels/:channelId/:addOrRemove/:userId/', requireToken, removeBlanks, (req, res, next) => {
 	// grab the id's from req.params
-	const { channelId, userId } = req.params
+	const { channelId, userId, addOrRemove } = req.params
 
 	// find the channel by its id
 	Channel.findById(channelId)
 		.then(handle404)
 		.then((channel) => {
 			requireOwnership(req, channel)
-			// check to make sure that the channel's member ref array doesn't already include the user you're adding
-			if (!channel.members.includes(userId)) {
-				// if it doesn't, find the user by their id
-				User.findById(userId)
+			// check to make sure that the channel's member ref array doesn't already include the user you're adding and the addOrRemove param is equal to 'add'
+			if (addOrRemove === 'add') {
+				if (!channel.members.includes(userId)) {
+					// if it doesn't, find the user by their id
+					User.findById(userId)
+						.then(user => {
+							// push the user onto the channel's members array
+							channel.members.push(user)
+							return channel.save()
+						})
+						.catch(next)
+				} 
+				// if the channel's member ref array includes the user in it already & the addOrRemove keyword is equal to 'remove'
+			} else if (addOrRemove === 'remove') {
+				if (channel.members.includes(userId)) {
+					User.findById(userId)
 					.then(user => {
-						// push the user onto the channel's members array
-						channel.members.push(user)
+						// grab the index of the user in the channel's members array
+						let index = channel.members.indexOf(user)
+						// splice the members array at that index and remove it
+						channel.members.splice(index, 1)
 						return channel.save()
 					})
-					// if that succeeded, return 204 and no JSON
-					.then(() => res.sendStatus(204))
 					.catch(next)
+				} 
 			}
 		})
+		.then(() => res.sendStatus(204))
 		// if an error occurs, pass to handler
 		.catch(next)
 })
@@ -146,3 +159,7 @@ router.delete('/channels/:id', requireToken, (req, res, next) => {
 })
 
 module.exports = router
+
+// a.a id 6407a44df5bc2b625cf762c5
+// t.t id 6407a43315ac3ba75ed2da72
+// sei fruitcakes channel id 6407a49fa65fefda5bf50214
