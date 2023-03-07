@@ -144,9 +144,13 @@ const messageSchema = new mongoose.Schema({
 
 ![HOME](images/Wireframe%20-%203.png)
 
+## Component Diagram
+
+![Component_Diagram](images/component_diagram.png)
+
 ## Stretch Goals
     - upload for user profile photos
     - message text formatting
     - message photo uploading
     - ability for user to search through messages
-    - direct messaging between users
+    - direct messaging between users (can this be done using the channels model? set channel name as the two users' usernames and )
