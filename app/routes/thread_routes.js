@@ -6,7 +6,7 @@ const passport = require('passport')
 // pull in Mongoose model for threads
 const Thread = require('../models/thread')
 // pull in Mongoose model for message
-const Message = require('../models/user')
+const Message = require('../models/message')
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
@@ -95,31 +95,30 @@ router.patch('/threads/:id', requireToken, removeBlanks, (req, res, next) => {
 		.catch(next)
 })
 
-//! THIS DOES NOT WORK RIGHT NOW
 // UPDATE -> reply to a thread
-// PATCH /threads/5a7db6c74d55bc51bdf39793
-router.patch('/threads/reply/:id', requireToken, removeBlanks, (req, res, next) => {
-	// assign owner of new message as current user
-	req.body.message.owner = req.user.id
-	// console.log('req.body.message', req.body.message)
-	// console.log('req.user', req.user)
-	// // create a new message
-	// Message.create(req.body.message)
-	// 	.then((message) => {
-	// 		console.log('created message', message)
-	// 		// find a thread by its id from req.params
-			Thread.findById(req.params.id)
-				.then((thread) => {
-					console.log('found thread', thread)
-					// push that message onto an existing thread's replies array
-					thread.replies.push(req.body.message)
+// PATCH /threads/6408a38f9d75ce6098f0d5c8/6408e36c518516dcde8c40cc
+router.patch('/threads/:threadId/:messageId', requireToken, removeBlanks, (req, res, next) => {
+	const { threadId, messageId } = req.params
+	console.log('messageId: ', messageId)
+	Thread.findById(threadId)
+		.then(handle404)
+		.then((thread) => {
+			console.log('thread', thread)
+			//! ADD IF STATEMENT TO CHECK IF MESSAGE ALREADY EXISTS IN THE REPLIES ARRAY
+			// if it doesn't, find the user by their id
+			Message.findById(messageId)
+				.then(handle404)
+				.then(message => {
+					console.log('message: ', message)
+					console.log('thread.replies: ', thread.replies)
+					// push the user onto the channel's members array
+					thread.replies.push(message)
 					return thread.save()
 				})
-				.then(() => res.sendStatus(204))
 				.catch(next)
-		// })
-		// .catch(next)
-	
+		})
+		.then(() => res.sendStatus(204))
+		.catch(next)
 })
 
 // DESTROY

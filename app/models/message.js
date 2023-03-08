@@ -11,10 +11,10 @@ const messageSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		thread: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'Thread'
-		}
+		// thread: {
+		// 	type: mongoose.Schema.Types.ObjectId,
+		// 	ref: 'Thread'
+		// }
 	},
 	{
 		timestamps: true,
