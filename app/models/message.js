@@ -10,6 +10,10 @@ const messageSchema = new mongoose.Schema(
 		content: {
 			type: String,
 			required: true,
+		},
+		thread: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Thread'
 		}
 	},
 	{

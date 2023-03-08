@@ -1,24 +1,20 @@
 const mongoose = require('mongoose')
 
-const exampleSchema = new mongoose.Schema(
+const threadSchema = new mongoose.Schema(
 	{
-		title: {
-			type: String,
-			required: true,
-		},
-		text: {
-			type: String,
-			required: true,
-		},
-		owner: {
+		firstMessage: {
 			type: mongoose.Schema.Types.ObjectId,
-			ref: 'User',
+			ref: 'Message',
 			required: true,
-		}
+		},
+		replies: [{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Message'
+		}],
 	},
 	{
 		timestamps: true,
 	}
 )
 
-module.exports = mongoose.model('Example', exampleSchema)
+module.exports = mongoose.model('Thread', threadSchema)

@@ -6,7 +6,7 @@ const passport = require('passport')
 // pull in Mongoose model for messages
 const Message = require('../models/message')
 // pull in Mongoose model for user
-const User = require('../models/user')
+const Thread = require('../models/thread')
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
@@ -57,22 +57,49 @@ router.get('/messages/:id', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
+
+//! NEED TO RETHINK MESSAGES/THREADS MODELS AND HOW TO CREATE A NEW MESSAGE AND ALSO AN INSTANCE OF A NEW THREAD AT THE SAME TIME
+//* OR -----------------
+//? FIGURE OUT HOW TO PASS APPROPRIATE REQ.BODY TO CREATE A THREAD WITH THE REQ.BODY NEEDED TO CREATE A MESSAGE
 // CREATE
-// POST /messagea
+// POST /message
 router.post('/messages', requireToken, (req, res, next) => {
 	// set author of new message to be current user
 	req.body.message.owner = req.user.id
 
 	Message.create(req.body.message)
-		// respond to succesful `create` with status 201 and JSON of new "message"
 		.then((message) => {
-			res.status(201).json({ message: message.toObject() })
+			// console.log(message)
+			res.status(201).json({ message: message.toObject()})
 		})
-		// if an error occurs, pass it off to our error handler
-		// the error handler needs the error message and the `res` object so that it
-		// can send an error message back to the client
 		.catch(next)
 })
+
+// // UPDATE -> reply to message
+// // PATCH /messages/5a7db6c74d55bc51bdf39793
+// router.patch('/messages/reply/:id', requireToken, removeBlanks, (req, res, next) => {
+// 	// grab the reply from the req.body
+// 	const reply = req.body
+// 	console.log(reply)
+// 	// JSON.parse(reply)
+// 	// console.log(reply)
+// 	Message.findById(req.params.id)
+// 		.then(handle404)
+// 		.then((message) => {
+// 			// pass the `req` object and the Mongoose record to `requireOwnership`
+// 			// it will throw an error if the current user isn't the owner
+// 			// requireOwnership(req, message)
+// 			// pass the result of Mongoose's `.update` to the next `.then`
+// 			// push reply onto found message's reply array
+// 			message.replies.push(reply)
+// 			return message.save()
+// 			// return message.updateOne(req.body.message)
+// 		})
+// 		// if that succeeded, return 204 and no JSON
+// 		.then(() => res.sendStatus(204))
+// 		// if an error occurs, pass it to the handler
+// 		.catch(next)
+// })
 
 // UPDATE
 // PATCH /messages/5a7db6c74d55bc51bdf39793

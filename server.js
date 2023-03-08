@@ -1,5 +1,9 @@
 // require necessary NPM packages
 const express = require('express')
+// socket io dependencies
+const { createServer } = require('http')
+const { Server } = require('socket.io')
+
 const mongoose = require('mongoose')
 const cors = require('cors')
 
@@ -7,6 +11,7 @@ const cors = require('cors')
 const profileRoutes = require('./app/routes/profile_routes')
 const channelRoutes = require('./app/routes/channel_routes')
 const messageRoutes = require('./app/routes/message_routes')
+const threadRoutes = require('./app/routes/thread_routes')
 const userRoutes = require('./app/routes/user_routes')
 
 // require middleware
@@ -35,6 +40,9 @@ mongoose.connect(db, {
 
 // instantiate express application object
 const app = express()
+
+// const httpServer = createServer(app)
+// const io = new Server(httpServer)
 
 // set CORS headers on response from this API using the `cors` NPM package
 // `CLIENT_ORIGIN` is an environment variable that will be set on Heroku
@@ -70,6 +78,7 @@ app.use(requestLogger)
 app.use(profileRoutes)
 app.use(channelRoutes)
 app.use(messageRoutes)
+app.use(threadRoutes)
 app.use(userRoutes)
 
 // register error handling middleware
@@ -77,8 +86,32 @@ app.use(userRoutes)
 // passed any error messages from them
 app.use(errorHandler)
 
+// io.on('connection', (socket) => {
+// 	console.log('connected')
+// 	console.log('socket: ', socket)
+// 	socket.emit('message', () => {
+// 		console.log('message')
+// 	})
+// })
+
+const httpServer = createServer(app)
+const io = new Server(httpServer, {
+	cors: {
+		origin: process.env.CLIENT_ORIGIN || `http://localhost:${clientDevPort}`,
+	}
+})
+
+io.on('connection', (socket) => {
+	console.log(socket.id)
+
+	socket.on('disconnect', () => {
+		console.log('user disconnected, socket.id: ', socket.id)
+	})
+})
+
 // run API on designated port (4741 in this case)
-app.listen(port, () => {
+//? changed from app to httpServer per the socket.io documentation
+httpServer.listen(port, () => {
 	console.log('listening on port ' + port)
 })
 
