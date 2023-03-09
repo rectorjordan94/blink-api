@@ -29,6 +29,8 @@ const requireToken = passport.authenticate('bearer', { session: false })
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
 
+const { ObjectId } = require('mongodb')
+
 // INDEX
 // GET /threads
 router.get('/threads', requireToken, (req, res, next) => {
@@ -45,11 +47,27 @@ router.get('/threads', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
+router.get('/threads/channel', requireToken, (req, res, next) => {
+	console.log('req.query.threads: ', req.query.threads)
+	const _id = ObjectId(req.query.threads)
+	Thread.findById(_id)
+	// Thread.find({ _id: { $in: req.query } })
+		.populate('firstMessage')
+		.then(handle404)
+		.then((threads) => {
+			console.log('threads in .then: ', threads)
+			return threads
+		})
+		.then((threads) => res.status(200).json({ threads: threads }))
+		.catch(next)
+})
+
 // SHOW
 // GET /threads/5a7db6c74d55bc51bdf39793
 router.get('/threads/:id', requireToken, (req, res, next) => {
 	// req.params.id will be set based on the `:id` in the route
 	Thread.findById(req.params.id)
+		// .populate('firstMessage')
 		.then(handle404)
 		// if `findById` is succesful, respond with 200 and "thread" JSON
 		.then((thread) => res.status(200).json({ thread: thread.toObject() }))

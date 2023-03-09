@@ -56,12 +56,50 @@ router.get('/channels', requireToken, (req, res, next) => {
 router.get('/channels/:id', requireToken, (req, res, next) => {
 	// req.params.id will be set based on the `:id` in the route
 	Channel.findById(req.params.id)
+		// .populate('threads')
 		.then(handle404)
 		// if `findById` is succesful, respond with 200 and "channel" JSON
 		.then((channel) => res.status(200).json({ channel: channel.toObject() }))
 		// if an error occurs, pass it to the handler
 		.catch(next)
 })
+
+// // SHOW
+// // GET /channels/5a7db6c74d55bc51bdf39793
+// router.get('/channels/:id', requireToken, (req, res, next) => {
+// 	// req.params.id will be set based on the `:id` in the route
+// 	Channel.findById(req.params.id)
+// 		.populate('threads')
+// 		.then(handle404)
+// 		// if `findById` is succesful, respond with 200 and "channel" JSON
+// 		// when I get a channel, I need to grab the id's of each of its threads from the channel's threads array
+// 		.then((channel) => {
+// 			console.log(channel.threads)
+// 			Thread.find({ _id: { $in: channel.threads } })
+// 				.populate('firstMessage')
+// 				.then(handle404)
+// 				.then((threads) => {
+// 					console.log('threads in channel: ', threads)
+// 					return threads
+// 				})
+// 				.then((threads) => res.status(200).json({ threads: threads }))
+// 			return channel
+// 		})
+// 		.then((channel) => res.status(200).json({ channel: channel.toObject() }))
+// 		// if an error occurs, pass it to the handler
+// 		.catch(next)
+// })
+
+// router.get('/channels/threads', requireToken, (req, res, next) => {
+// 	console.log('req.body: ', req.body.threads)
+// 	Thread.find({ _id: { $in: req.body.threads } })
+// 		.populate('firstMessage')
+// 		.then(handle404)
+// 		.then((threads) => {
+// 			console.log('threads in channel: ', threads)
+// 			return threads
+// 		})
+// })
 
 // // CREATE
 // // POST /channels
