@@ -7,6 +7,9 @@ const passport = require('passport')
 const Channel = require('../models/channel')
 // pull in Mongoose model for user
 const User = require('../models/user')
+// pull in Mongoose model for threads
+const Thread = require('../models/thread')
+const Message = require('../models/message')
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
@@ -60,22 +63,90 @@ router.get('/channels/:id', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
+// // CREATE
+// // POST /channels
+// router.post('/channels', requireToken, (req, res, next) => {
+// 	// set owner of new example to be current user
+// 	req.body.channel.owner = req.user.id
+
+// 	Channel.create(req.body.channel)
+// 		// respond to succesful `create` with status 201 and JSON of new "channel"
+// 		.then((channel) => {
+
+// 			res.status(201).json({ channel: channel.toObject() })
+// 		})
+// 		// if an error occurs, pass it off to our error handler
+// 		// the error handler needs the error message and the `res` object so that it
+// 		// can send an error message back to the client
+// 		.catch(next)
+// })
+
+//? to create a channel, you must first create a message, and then create a thread, and then create the channel
+//! IS IT POSSIBLE TO CREATE A CHANNEL AND A MAIN THREAD FOR IT IN ONE ROUTE???
 // CREATE
 // POST /channels
+// router.post('/channels', requireToken, (req, res, next) => {
+// 	// set owner of new example to be current user
+// 	req.body.channel.owner = req.user.id
+
+// 	Channel.create(req.body.channel)
+// 		// respond to succesful `create` with status 201 and JSON of new "channel"
+// 		.then((channel) => {
+// 			res.status(201).json({ channel: channel.toObject() })
+// 		})
+// 		// if an error occurs, pass it off to our error handler
+// 		// the error handler needs the error message and the `res` object so that it
+// 		// can send an error message back to the client
+// 		.catch(next)
+// })
+
+//! CREATE CHANNEL -> CREATE A MESSAGE -> CREATE A THREAD USING MESSAGE AS THE FIRSTMESSAGE
 router.post('/channels', requireToken, (req, res, next) => {
 	// set owner of new example to be current user
 	req.body.channel.owner = req.user.id
+	// console.log('req.body.channel', req.body.channel)
 
+	// create first initial message needed to create a thread
+	const message = {
+		content: `Welcome to ${req.body.channel.name} channel. Start chatting!`,
+		owner: req.user.id
+	}
+	// create a channel with the req.body
 	Channel.create(req.body.channel)
-		// respond to succesful `create` with status 201 and JSON of new "channel"
 		.then((channel) => {
-			res.status(201).json({ channel: channel.toObject() })
+			// create a message with the name of the channel from req.body.channel.name
+			Message.create(message)
+				.then((message) => {
+					// create initial thread for channel and set the message that was just created as the firstMessage
+					const thread = {
+						firstMessage: message.id,
+						owner: req.user.id
+					}
+					Thread.create(thread)
+						.then((thread) => {
+							// console.log('THREAD: ', thread)
+
+							// grab the newly created channel from the database using its id
+							Channel.findById(channel.id)
+								.then((channel) => {
+									// push the new thread onto the channel
+									channel.threads.push(thread)
+									// save the channel 
+									return channel.save()
+								})
+								.then((channel) => {
+									// respond to succesful `create` with status 201 and JSON of new "channel"
+									res.status(201).json({ channel: channel.toObject() })
+								})
+								.catch(next)
+						})
+						.catch(next)
+				})
+				.catch(next)
 		})
-		// if an error occurs, pass it off to our error handler
-		// the error handler needs the error message and the `res` object so that it
-		// can send an error message back to the client
 		.catch(next)
 })
+
 
 // UPDATE
 // PATCH /channels/5a7db6c74d55bc51bdf39793
