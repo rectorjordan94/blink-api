@@ -103,8 +103,14 @@ const io = new Server(httpServer, {
 
 io.on('connection', (socket) => {
 	console.log(socket.id)
-	socket.on('thread', (thread) => {
-		console.log('thread', thread)
+	socket.on('resetThreads', (resetThreads) => {
+		console.log('*****************************')
+		console.log(resetThreads)
+		console.log('*****************************')
+		socket.broadcast.emit('triggerRefresh', 'triggerRefresh')
+		// socket.emit('message', (socket) => {
+		// 	console.log('refreshThreads sent from backend')
+		// })
 	})
 
 	socket.on('disconnect', () => {
