@@ -107,7 +107,7 @@ io.on('connection', (socket) => {
 		console.log('*****************************')
 		console.log(resetThreads)
 		console.log('*****************************')
-		socket.broadcast.emit('triggerRefresh', 'triggerRefresh')
+		socket.broadcast.emit('triggerRefresh')
 		// socket.emit('message', (socket) => {
 		// 	console.log('refreshThreads sent from backend')
 		// })
