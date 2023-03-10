@@ -103,11 +103,16 @@ const io = new Server(httpServer, {
 
 io.on('connection', (socket) => {
 	console.log(socket.id)
+	socket.on('thread', (thread) => {
+		console.log('thread', thread)
+	})
 
 	socket.on('disconnect', () => {
 		console.log('user disconnected, socket.id: ', socket.id)
 	})
 })
+
+
 
 // run API on designated port (4741 in this case)
 //? changed from app to httpServer per the socket.io documentation

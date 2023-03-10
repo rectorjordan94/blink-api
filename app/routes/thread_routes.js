@@ -48,12 +48,12 @@ router.get('/threads', requireToken, (req, res, next) => {
 })
 
 router.get('/threads/channel', requireToken, (req, res, next) => {
-	console.log('req.query.threads: ', req.query.threads)
+	// console.log('req.query.threads: ', req.query.threads)
 	let threadString = req.query.threads
 	const objectIdArray = []
 	const threadArray = threadString.split(',')
 	threadArray.forEach(item => objectIdArray.push(ObjectId(item)))
-	console.log(objectIdArray)
+	// console.log(objectIdArray)
 	// const _id = ObjectId(objectIdArray)
 	// console.log('_id: ', _id)
 	// Thread.findById(_id)
@@ -62,7 +62,7 @@ router.get('/threads/channel', requireToken, (req, res, next) => {
 		.populate('owner')
 		.then(handle404)
 		.then((threads) => {
-			console.log('threads in .then: ', threads)
+			// console.log('threads in .then: ', threads)
 			return threads
 		})
 		.then((threads) => res.status(200).json({ threads: threads }))
@@ -87,7 +87,7 @@ router.get('/threads/:id', requireToken, (req, res, next) => {
 router.post('/threads', requireToken, (req, res, next) => {
 	// set author of new thread to be current user
 	req.body.thread.owner = req.user.id
-
+	console.log('req.body in create thread: ', req.body)
 	Thread.create(req.body.thread)
 		// respond to succesful `create` with status 201 and JSON of new "thread"
 		.then((thread) => {

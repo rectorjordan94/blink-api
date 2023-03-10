@@ -64,6 +64,14 @@ router.get('/channels/:id', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
+router.get('channels/:channelId/:threadIds', requireToken, (req, res, next) => {
+	const { channelId, threadIds } = req.params
+
+	Channel.findById(channelId)
+})
+
+
+
 // // SHOW
 // // GET /channels/5a7db6c74d55bc51bdf39793
 // router.get('/channels/:id', requireToken, (req, res, next) => {
@@ -204,6 +212,34 @@ router.patch('/channels/:id', requireToken, removeBlanks, (req, res, next) => {
 		// if that succeeded, return 204 and no JSON
 		.then(() => res.sendStatus(204))
 		// if an error occurs, pass it to the handler
+		.catch(next)
+})
+
+// UPDATE - Add thread to channel
+// PATCH /channels/6407a49fa65fefda5bf50214/6407a5be5613cc597f002aaa
+router.patch('/channels/thread/:channelId/:threadId/', requireToken, removeBlanks, (req, res, next) => {
+	// grab the id's from req.params
+	const { channelId, threadId } = req.params
+
+	// find the channel by its id
+	Channel.findById(channelId)
+		.then(handle404)
+		.then((channel) => {
+			// requireOwnership(req, channel)
+				if (!channel.threads.includes(threadId)) {
+					// if it doesn't, find the thread by its id
+					Thread.findById(threadId)
+						.then(thread => {
+							requireOwnership(req, thread)
+							// push the thread onto the channel's threads array
+							channel.threads.push(thread)
+							return channel.save()
+						})
+						.catch(next)
+				}
+		})
+		.then(() => res.sendStatus(204))
+		// if an error occurs, pass to handler
 		.catch(next)
 })
 
