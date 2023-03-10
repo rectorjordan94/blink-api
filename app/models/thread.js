@@ -11,6 +11,12 @@ const threadSchema = new mongoose.Schema(
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Message'
 		}],
+		owner: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'User',
+			//! add this back in after deleting all threads w/out owners from the database
+			// required: true
+		}
 	},
 	{
 		timestamps: true,

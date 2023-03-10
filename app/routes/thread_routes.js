@@ -59,6 +59,7 @@ router.get('/threads/channel', requireToken, (req, res, next) => {
 	// Thread.findById(_id)
 	Thread.find({ _id: { $in: objectIdArray } })
 		.populate('firstMessage')
+		.populate('owner')
 		.then(handle404)
 		.then((threads) => {
 			console.log('threads in .then: ', threads)
