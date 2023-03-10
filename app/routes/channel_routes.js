@@ -64,11 +64,14 @@ router.get('/channels/:id', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
-router.get('channels/:channelId/:threadIds', requireToken, (req, res, next) => {
-	const { channelId, threadIds } = req.params
+// router.get('channels/:channelId/:threadIds', requireToken, (req, res, next) => {
+// 	const { channelId, threadIds } = req.params
 
-	Channel.findById(channelId)
-})
+// 	Channel.findById(channelId)
+// 		.then(handle404)
+// 		.then((channel) => res.status(200).json({ channel: channel.toObject() }))
+// 		.catch(next)
+// })
 
 
 
