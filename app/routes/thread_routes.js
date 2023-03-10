@@ -49,9 +49,15 @@ router.get('/threads', requireToken, (req, res, next) => {
 
 router.get('/threads/channel', requireToken, (req, res, next) => {
 	console.log('req.query.threads: ', req.query.threads)
-	const _id = ObjectId(req.query.threads)
-	Thread.findById(_id)
-	// Thread.find({ _id: { $in: req.query } })
+	let threadString = req.query.threads
+	const objectIdArray = []
+	const threadArray = threadString.split(',')
+	threadArray.forEach(item => objectIdArray.push(ObjectId(item)))
+	console.log(objectIdArray)
+	// const _id = ObjectId(objectIdArray)
+	// console.log('_id: ', _id)
+	// Thread.findById(_id)
+	Thread.find({ _id: { $in: objectIdArray } })
 		.populate('firstMessage')
 		.then(handle404)
 		.then((threads) => {
