@@ -74,6 +74,27 @@ router.post('/profiles', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
+
+router.patch('/profiles/:profileId/:userId', requireToken, removeBlanks, (req, res, next) => {
+	const { profileId, userId } = req.params
+	Profile.findById(profileId)
+		.then(handle404)
+		.then((profile) => {
+			requireOwnership(req, profile)
+			User.findById(userId)
+				.then((user) => {
+					console.log('user', user)
+					console.log('profile', profile)
+					return user.updateOne({profile: profile})
+				})
+				.then(() => res.sendStatus(204))
+				.catch(next)
+		})
+		.catch(next)
+})
+
+
+
 //! HITTING THIS ROUTE CURRENTLY, NEED TO MAKE A NEW ONE
 // UPDATE
 // PATCH /profiles/5a7db6c74d55bc51bdf39793
@@ -81,7 +102,7 @@ router.patch('/profiles/:id', requireToken, removeBlanks, (req, res, next) => {
 	// if the client attempts to change the `owner` property by including a new
 	// owner, prevent that by deleting that key/value pair
 	delete req.body.profile.owner
-
+	console.log('req.body: ', req.body)
 	Profile.findById(req.params.id)
 		.then(handle404)
 		.then((profile) => {
