@@ -4,19 +4,15 @@ const profileSchema = new mongoose.Schema(
 	{
 		username: {
 			type: String,
-			required: true,
 		},
 		fullName: {
 			type: String,
-			required: true,
 		},
 		location: {
 			type: String,
-			required: true,
 		},
 		pronouns: {
 			type: String,
-			required: true,
 		},
 		owner: {
 			type: mongoose.Schema.Types.ObjectId,
