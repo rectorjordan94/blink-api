@@ -74,6 +74,7 @@ router.post('/profiles', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
+//! HITTING THIS ROUTE CURRENTLY, NEED TO MAKE A NEW ONE
 // UPDATE
 // PATCH /profiles/5a7db6c74d55bc51bdf39793
 router.patch('/profiles/:id', requireToken, removeBlanks, (req, res, next) => {
