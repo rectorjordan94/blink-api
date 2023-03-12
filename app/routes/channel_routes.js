@@ -37,8 +37,9 @@ const router = express.Router()
 router.get('/channels', requireToken, (req, res, next) => {
 	Channel.find()
 	// populate user emails in channels for testing purposes, 
-	//! remove this later
-		.populate('members', 'email')
+	//! remove this later CAN MAYBE POPULATE MEMBERS TO GRAB USERNAME??
+		.populate('members')
+		// .populate('threads')
 		.then((channels) => {
 			// `channels` will be an array of Mongoose documents
 			// we want to convert each one to a POJO, so we use `.map` to

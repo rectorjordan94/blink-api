@@ -60,8 +60,12 @@ router.get('/threads/channel', requireToken, (req, res, next) => {
 	Thread.find({ _id: { $in: objectIdArray } })
 		.populate('firstMessage')
 		.populate('owner')
+		// .populate({path: 'owner.username', select: 'username'})
+		// .populate('owner', 'username')
+		// .populate('owner', 'profile')
 		.then(handle404)
 		.then((threads) => {
+			// console.log('threads in .then: ', threads)
 			// console.log('threads in .then: ', threads)
 			return threads
 		})
@@ -86,7 +90,9 @@ router.get('/threads/:id', requireToken, (req, res, next) => {
 // POST /threads
 router.post('/threads', requireToken, (req, res, next) => {
 	// set author of new thread to be current user
+	console.log('req.user')
 	req.body.thread.owner = req.user.id
+	
 	console.log('req.body in create thread: ', req.body)
 	Thread.create(req.body.thread)
 		// respond to succesful `create` with status 201 and JSON of new "thread"

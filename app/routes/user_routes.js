@@ -15,6 +15,11 @@ const errors = require('../../lib/custom_errors')
 const BadParamsError = errors.BadParamsError
 const BadCredentialsError = errors.BadCredentialsError
 
+const customErrors = require('../../lib/custom_errors')
+
+// we'll use this function to send 404 when non-existant document is requested
+const handle404 = customErrors.handle404
+
 const User = require('../models/user')
 
 // passing this as a second argument to `router.<verb>` will make it
@@ -24,6 +29,22 @@ const requireToken = passport.authenticate('bearer', { session: false })
 
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
+
+router.get('/users', (req, res, next) => {
+	User.find({}, 'email')
+		.populate('profile', 'username')
+		.then(handle404)
+		.then((users) => {
+			// `users` will be an array of Mongoose documents
+			// we want to convert each one to a POJO, so we use `.map` to
+			// apply `.toObject` to each one
+			return users.map((user) => user.toObject())
+		})
+		// respond with status 200 and JSON of the users
+		.then((users) => res.status(200).json({ users: users }))
+		// if an error occurs, pass it to the handler
+		.catch(next)
+})
 
 // SIGN UP
 // POST /sign-up

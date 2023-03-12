@@ -29,8 +29,16 @@ const userSchema = new mongoose.Schema(
 				delete user.hashedPassword
 				return user
 			},
+			virtuals: true
 		},
+		toJSON: { virtuals: true }
 	}
 )
+
+// userSchema.virtual('username', {
+// 	ref: 'Profile',
+// 	localField: 'username',
+// 	foreignField: 'username'
+// })
 
 module.exports = mongoose.model('User', userSchema)
