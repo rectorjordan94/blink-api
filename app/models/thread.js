@@ -1,4 +1,6 @@
 const mongoose = require('mongoose')
+const User = require('./user')
+const Profile = require('./profile')
 
 const threadSchema = new mongoose.Schema(
 	{
@@ -20,7 +22,17 @@ const threadSchema = new mongoose.Schema(
 	},
 	{
 		timestamps: true,
+		toObject: { virtuals: true },
+		toJSON: { virtuals: true }
 	}
 )
+
+threadSchema.virtual('author', {
+	ref: 'Profile',
+	localField: 'owner',
+	foreignField: 'owner',
+	justOne: true
+})
+
 
 module.exports = mongoose.model('Thread', threadSchema)

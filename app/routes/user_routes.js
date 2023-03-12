@@ -32,7 +32,8 @@ const router = express.Router()
 
 router.get('/users', (req, res, next) => {
 	User.find({}, 'email')
-		.populate('profile', 'username')
+		// .populate('profile', 'username')
+		// .populate('username')
 		.then(handle404)
 		.then((users) => {
 			// `users` will be an array of Mongoose documents
@@ -89,6 +90,7 @@ router.post('/sign-in', (req, res, next) => {
 	// find a user based on the email that was passed
 	User.findOne({ email: req.body.credentials.email })
 		.populate('profile')
+		// .populate('username', 'username')
 		.then((record) => {
 			// if we didn't find a user with that email, send 401
 			if (!record) {

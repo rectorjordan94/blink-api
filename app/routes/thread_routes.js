@@ -58,14 +58,16 @@ router.get('/threads/channel', requireToken, (req, res, next) => {
 	// console.log('_id: ', _id)
 	// Thread.findById(_id)
 	Thread.find({ _id: { $in: objectIdArray } })
+		// .populate('firstMessage')
 		.populate('firstMessage')
-		.populate('owner')
+		.populate('author', 'username')
+		// .populate(['firstMessage', 'owner', 'owner.profile'])
 		// .populate({path: 'owner.username', select: 'username'})
 		// .populate('owner', 'username')
 		// .populate('owner', 'profile')
 		.then(handle404)
 		.then((threads) => {
-			// console.log('threads in .then: ', threads)
+			console.log('threads in .then: ', threads)
 			// console.log('threads in .then: ', threads)
 			return threads
 		})
@@ -78,6 +80,7 @@ router.get('/threads/channel', requireToken, (req, res, next) => {
 router.get('/threads/:id', requireToken, (req, res, next) => {
 	// req.params.id will be set based on the `:id` in the route
 	Thread.findById(req.params.id)
+		.populate('author', 'username')
 		// .populate('firstMessage')
 		.then(handle404)
 		// if `findById` is succesful, respond with 200 and "thread" JSON

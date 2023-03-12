@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const Profile = require('./profile')
 
 const userSchema = new mongoose.Schema(
 	{
@@ -37,8 +38,9 @@ const userSchema = new mongoose.Schema(
 
 // userSchema.virtual('username', {
 // 	ref: 'Profile',
-// 	localField: 'username',
-// 	foreignField: 'username'
+// 	localField: 'profile',
+// 	foreignField: '_id',
+// 	justOne: true
 // })
 
 module.exports = mongoose.model('User', userSchema)
