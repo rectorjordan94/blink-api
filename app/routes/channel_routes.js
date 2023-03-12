@@ -57,6 +57,7 @@ router.get('/channels', requireToken, (req, res, next) => {
 router.get('/channels/:id', requireToken, (req, res, next) => {
 	// req.params.id will be set based on the `:id` in the route
 	Channel.findById(req.params.id)
+		.populate('members')
 		// .populate('threads')
 		.then(handle404)
 		// if `findById` is succesful, respond with 200 and "channel" JSON
@@ -65,90 +66,6 @@ router.get('/channels/:id', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
-// router.get('channels/:channelId/:threadIds', requireToken, (req, res, next) => {
-// 	const { channelId, threadIds } = req.params
-
-// 	Channel.findById(channelId)
-// 		.then(handle404)
-// 		.then((channel) => res.status(200).json({ channel: channel.toObject() }))
-// 		.catch(next)
-// })
-
-
-
-// // SHOW
-// // GET /channels/5a7db6c74d55bc51bdf39793
-// router.get('/channels/:id', requireToken, (req, res, next) => {
-// 	// req.params.id will be set based on the `:id` in the route
-// 	Channel.findById(req.params.id)
-// 		.populate('threads')
-// 		.then(handle404)
-// 		// if `findById` is succesful, respond with 200 and "channel" JSON
-// 		// when I get a channel, I need to grab the id's of each of its threads from the channel's threads array
-// 		.then((channel) => {
-// 			console.log(channel.threads)
-// 			Thread.find({ _id: { $in: channel.threads } })
-// 				.populate('firstMessage')
-// 				.then(handle404)
-// 				.then((threads) => {
-// 					console.log('threads in channel: ', threads)
-// 					return threads
-// 				})
-// 				.then((threads) => res.status(200).json({ threads: threads }))
-// 			return channel
-// 		})
-// 		.then((channel) => res.status(200).json({ channel: channel.toObject() }))
-// 		// if an error occurs, pass it to the handler
-// 		.catch(next)
-// })
-
-// router.get('/channels/threads', requireToken, (req, res, next) => {
-// 	console.log('req.body: ', req.body.threads)
-// 	Thread.find({ _id: { $in: req.body.threads } })
-// 		.populate('firstMessage')
-// 		.then(handle404)
-// 		.then((threads) => {
-// 			console.log('threads in channel: ', threads)
-// 			return threads
-// 		})
-// })
-
-// // CREATE
-// // POST /channels
-// router.post('/channels', requireToken, (req, res, next) => {
-// 	// set owner of new example to be current user
-// 	req.body.channel.owner = req.user.id
-
-// 	Channel.create(req.body.channel)
-// 		// respond to succesful `create` with status 201 and JSON of new "channel"
-// 		.then((channel) => {
-
-// 			res.status(201).json({ channel: channel.toObject() })
-// 		})
-// 		// if an error occurs, pass it off to our error handler
-// 		// the error handler needs the error message and the `res` object so that it
-// 		// can send an error message back to the client
-// 		.catch(next)
-// })
-
-//? to create a channel, you must first create a message, and then create a thread, and then create the channel
-//! IS IT POSSIBLE TO CREATE A CHANNEL AND A MAIN THREAD FOR IT IN ONE ROUTE???
-// CREATE
-// POST /channels
-// router.post('/channels', requireToken, (req, res, next) => {
-// 	// set owner of new example to be current user
-// 	req.body.channel.owner = req.user.id
-
-// 	Channel.create(req.body.channel)
-// 		// respond to succesful `create` with status 201 and JSON of new "channel"
-// 		.then((channel) => {
-// 			res.status(201).json({ channel: channel.toObject() })
-// 		})
-// 		// if an error occurs, pass it off to our error handler
-// 		// the error handler needs the error message and the `res` object so that it
-// 		// can send an error message back to the client
-// 		.catch(next)
-// })
 
 //! CREATE CHANNEL -> CREATE A MESSAGE -> CREATE A THREAD USING MESSAGE AS THE FIRSTMESSAGE
 router.post('/channels', requireToken, (req, res, next) => {
@@ -249,7 +166,7 @@ router.patch('/channels/thread/:channelId/:threadId/', requireToken, removeBlank
 
 // UPDATE - Add/remove member to/from channel
 // PATCH /channels/6407a49fa65fefda5bf50214/6407a5be5613cc597f002aaa
-router.patch('/channels/:channelId/:addOrRemove/:userId/', requireToken, removeBlanks, (req, res, next) => {
+router.patch('/channels/:channelId/:addOrRemove/:userId', requireToken, removeBlanks, (req, res, next) => {
 	// grab the id's from req.params
 	const { channelId, userId, addOrRemove } = req.params
 
