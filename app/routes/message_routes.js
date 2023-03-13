@@ -29,6 +29,16 @@ const requireToken = passport.authenticate('bearer', { session: false })
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
 
+// router.delete('/messages/delete', (req, res, next) => {
+// 	Message.find()
+// 		.then((messages) => {
+// 			messages.forEach(message => message.deleteOne())
+// 		})
+// 		.then(() => res.sendStatus(204))
+// 		// if an error occurs, pass it to the handler
+// 		.catch(next)
+// })
+
 // INDEX
 // GET /messages
 router.get('/messages', requireToken, (req, res, next) => {
@@ -44,6 +54,28 @@ router.get('/messages', requireToken, (req, res, next) => {
 		// if an error occurs, pass it to the handler
 		.catch(next)
 })
+
+router.post('/messages/reply/:threadId', requireToken,  (req, res, next) => {
+	req.body.message.owner = req.user.id
+	const { threadId } = req.params
+	req.body.message.inThread = threadId
+	console.log('req.body.message: ', req.body.message)
+	console.log('threadId: ', threadId)
+	Message.create(req.body.message)
+		.then((message) => {
+			Thread.findById(threadId)
+				.then(handle404)
+				.then((thread) => {
+					// message.inThread = threadId
+					thread.replies.push(message)
+					return thread.save()
+				})
+				.then(() => res.sendStatus(204))
+				.catch(next)
+		})
+		.catch(next)
+})
+
 
 // SHOW
 // GET /messages/5a7db6c74d55bc51bdf39793
@@ -75,31 +107,7 @@ router.post('/messages', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
-// // UPDATE -> reply to message
-// // PATCH /messages/5a7db6c74d55bc51bdf39793
-// router.patch('/messages/reply/:id', requireToken, removeBlanks, (req, res, next) => {
-// 	// grab the reply from the req.body
-// 	const reply = req.body
-// 	console.log(reply)
-// 	// JSON.parse(reply)
-// 	// console.log(reply)
-// 	Message.findById(req.params.id)
-// 		.then(handle404)
-// 		.then((message) => {
-// 			// pass the `req` object and the Mongoose record to `requireOwnership`
-// 			// it will throw an error if the current user isn't the owner
-// 			// requireOwnership(req, message)
-// 			// pass the result of Mongoose's `.update` to the next `.then`
-// 			// push reply onto found message's reply array
-// 			message.replies.push(reply)
-// 			return message.save()
-// 			// return message.updateOne(req.body.message)
-// 		})
-// 		// if that succeeded, return 204 and no JSON
-// 		.then(() => res.sendStatus(204))
-// 		// if an error occurs, pass it to the handler
-// 		.catch(next)
-// })
+
 
 // UPDATE
 // PATCH /messages/5a7db6c74d55bc51bdf39793

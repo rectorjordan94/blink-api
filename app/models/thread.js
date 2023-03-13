@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const User = require('./user')
+const Message = require('./message')
 const Profile = require('./profile')
 
 const threadSchema = new mongoose.Schema(
@@ -31,6 +31,13 @@ threadSchema.virtual('author', {
 	ref: 'Profile',
 	localField: 'owner',
 	foreignField: 'owner',
+	justOne: true
+})
+
+threadSchema.virtual('responses', {
+	ref: 'Message',
+	localField: 'replies',
+	foreignField: 'inThread',
 	justOne: true
 })
 

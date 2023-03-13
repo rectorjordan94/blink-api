@@ -60,14 +60,16 @@ router.get('/threads/channel', requireToken, (req, res, next) => {
 	Thread.find({ _id: { $in: objectIdArray } })
 		// .populate('firstMessage')
 		.populate('firstMessage')
+		// .populate('firstMessage', 'author')
 		.populate('author', 'username')
+		// .populate('responses')
 		// .populate(['firstMessage', 'owner', 'owner.profile'])
 		// .populate({path: 'owner.username', select: 'username'})
 		// .populate('owner', 'username')
 		// .populate('owner', 'profile')
 		.then(handle404)
 		.then((threads) => {
-			console.log('threads in .then: ', threads)
+			// console.log('threads in .then: ', threads)
 			// console.log('threads in .then: ', threads)
 			return threads
 		})
@@ -81,10 +83,35 @@ router.get('/threads/:id', requireToken, (req, res, next) => {
 	// req.params.id will be set based on the `:id` in the route
 	Thread.findById(req.params.id)
 		.populate('author', 'username')
+		// .populate('firstMessage', 'owner')
+		// .populate('replies', 'owner')
+		.populate({
+			path: 'firstMessage',
+			populate: {
+				path: 'owner',
+				model: 'User'
+			}
+		})
+		.populate({
+			path: 'replies',
+			populate: {
+				path: 'owner',
+				model: 'User',
+				populate: {
+					path: 'profile',
+					model: 'Profile'
+				}
+			}
+			//! currently passing an object to frontend because of user populate (may be referencing it somewhere in react) NEED TO FIX
+		})
+		// .populate('responses')
 		// .populate('firstMessage')
 		.then(handle404)
 		// if `findById` is succesful, respond with 200 and "thread" JSON
-		.then((thread) => res.status(200).json({ thread: thread.toObject() }))
+		.then((thread) => { 
+			console.log('thread: ', thread)
+			res.status(200).json({ thread: thread.toObject() })
+		})
 		// if an error occurs, pass it to the handler
 		.catch(next)
 })
@@ -133,7 +160,7 @@ router.patch('/threads/:id', requireToken, removeBlanks, (req, res, next) => {
 // PATCH /threads/6408a38f9d75ce6098f0d5c8/6408e36c518516dcde8c40cc
 router.patch('/threads/:threadId/:messageId', requireToken, removeBlanks, (req, res, next) => {
 	const { threadId, messageId } = req.params
-	console.log('messageId: ', messageId)
+	// console.log('messageId: ', messageId)
 	Thread.findById(threadId)
 		.then(handle404)
 		.then((thread) => {
@@ -146,6 +173,8 @@ router.patch('/threads/:threadId/:messageId', requireToken, removeBlanks, (req, 
 					console.log('message: ', message)
 					console.log('thread.replies: ', thread.replies)
 					// push the user onto the channel's members array
+					//* HOPEFULLY THIS WORKS
+					message.inThread = thread._id
 					thread.replies.push(message)
 					return thread.save()
 				})
@@ -162,7 +191,7 @@ router.delete('/threads/:id', requireToken, (req, res, next) => {
 		.then(handle404)
 		.then((thread) => {
 			// throw an error if current user doesn't own `thread`
-			requireOwnership(req, thread)
+			// requireOwnership(req, thread)
 			// delete the thread ONLY IF the above didn't throw
 			thread.deleteOne()
 		})

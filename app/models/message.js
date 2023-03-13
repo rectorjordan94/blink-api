@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const User = require('./user')
 
 const messageSchema = new mongoose.Schema(
 	{
@@ -11,14 +12,20 @@ const messageSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		// thread: {
-		// 	type: mongoose.Schema.Types.ObjectId,
-		// 	ref: 'Thread'
-		// }
+		inThread: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Thread'
+		}
 	},
 	{
 		timestamps: true,
 	}
 )
+
+messageSchema.virtual('author', {
+	ref: 'User',
+	localField: 'owner',
+	foreignField: '_id'
+})
 
 module.exports = mongoose.model('Message', messageSchema)
