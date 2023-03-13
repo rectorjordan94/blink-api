@@ -52,6 +52,18 @@ router.get('/channels', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
+router.get('/channels/mine', requireToken, (req, res, next) => {
+	const userId = req.user.id
+	Channel.find({ $or: [{ owner: userId}, { members: { $in: userId } }]})
+		.then((channels) => {
+			console.log('my channels: ', channels)
+			return channels
+		})
+		.then((channels) => res.status(200).json({ channels: channels }))
+		.catch(next)
+})
+
+
 // SHOW
 // GET /channels/5a7db6c74d55bc51bdf39793
 router.get('/channels/:id', requireToken, (req, res, next) => {
