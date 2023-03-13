@@ -7,6 +7,7 @@ const passport = require('passport')
 const Thread = require('../models/thread')
 // pull in Mongoose model for message
 const Message = require('../models/message')
+const Channel = require('../models/channel')
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
@@ -172,20 +173,45 @@ router.patch('/threads/:threadId/:messageId', requireToken, removeBlanks, (req, 
 
 // DESTROY
 // DELETE /threads/5a7db6c74d55bc51bdf39793
-router.delete('/threads/:id', requireToken, (req, res, next) => {
-	Thread.findById(req.params.id)
-		.then(handle404)
-		.then((thread) => {
-			// throw an error if current user doesn't own `thread`
-			// requireOwnership(req, thread)
-			// delete the thread ONLY IF the above didn't throw
-			thread.deleteOne()
-		})
-		// send back 204 and no content if the deletion succeeded
-		.then(() => res.sendStatus(204))
-		// if an error occurs, pass it to the handler
-		.catch(next)
-})
+// router.delete('/threads/:id', requireToken, (req, res, next) => {
+// 	Thread.findById(req.params.id)
+// 		.then(handle404)
+// 		.then((thread) => {
+// 			// throw an error if current user doesn't own `thread`
+// 			// requireOwnership(req, thread)
+// 			// delete the thread ONLY IF the above didn't throw
+// 			thread.deleteOne()
+// 		})
+// 		// send back 204 and no content if the deletion succeeded
+// 		.then(() => res.sendStatus(204))
+// 		// if an error occurs, pass it to the handler
+// 		.catch(next)
+// })
 
 module.exports = router
 
+router.delete('/threads/:threadId/:channelId', requireToken, (req, res, next) => {
+
+	const { threadId, channelId } = req.params
+
+	Thread.findById(threadId)
+		.then(handle404)
+		.then((thread) => {
+			// throw an error if current user doesn't own `message`
+			requireOwnership(req, thread)
+			// delete the message ONLY IF the above didn't throw
+			Channel.findById(channelId)
+				.then(handle404)
+				.then(channel => {
+					let index = channel.threads.indexOf(thread)
+					channel.threads.splice(index, 1)
+					thread.deleteOne()
+					return channel.save()
+				})
+				// send back 204 and no content if the deletion succeeded
+				.then(() => res.sendStatus(204))
+				.catch(next)
+		})
+		// if an error occurs, pass it to the handler
+		.catch(next)
+})
