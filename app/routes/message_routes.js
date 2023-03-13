@@ -55,12 +55,13 @@ router.get('/messages', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
+// REPLY TO A THREAD ? 
 router.post('/messages/reply/:threadId', requireToken,  (req, res, next) => {
 	req.body.message.owner = req.user.id
 	const { threadId } = req.params
 	req.body.message.inThread = threadId
-	console.log('req.body.message: ', req.body.message)
-	console.log('threadId: ', threadId)
+	// console.log('req.body.message: ', req.body.message)
+	// console.log('threadId: ', threadId)
 	Message.create(req.body.message)
 		.then((message) => {
 			Thread.findById(threadId)
@@ -139,10 +140,18 @@ router.delete('/messages/:id', requireToken, (req, res, next) => {
 			// throw an error if current user doesn't own `message`
 			requireOwnership(req, message)
 			// delete the message ONLY IF the above didn't throw
-			message.deleteOne()
+			Thread.findById(message.inThread)
+				.then(handle404)
+				.then(thread => {
+					let index = thread.replies.indexOf(message)
+					thread.replies.splice(index, 1)
+					message.deleteOne()
+					return thread.save()
+				})
+				// send back 204 and no content if the deletion succeeded
+				.then(() => res.sendStatus(204))
+				.catch(next)
 		})
-		// send back 204 and no content if the deletion succeeded
-		.then(() => res.sendStatus(204))
 		// if an error occurs, pass it to the handler
 		.catch(next)
 })

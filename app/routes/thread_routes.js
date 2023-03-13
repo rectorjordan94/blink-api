@@ -54,20 +54,10 @@ router.get('/threads/channel', requireToken, (req, res, next) => {
 	const objectIdArray = []
 	const threadArray = threadString.split(',')
 	threadArray.forEach(item => objectIdArray.push(ObjectId(item)))
-	// console.log(objectIdArray)
-	// const _id = ObjectId(objectIdArray)
-	// console.log('_id: ', _id)
-	// Thread.findById(_id)
+
 	Thread.find({ _id: { $in: objectIdArray } })
-		// .populate('firstMessage')
 		.populate('firstMessage')
-		// .populate('firstMessage', 'author')
 		.populate('author', 'username')
-		// .populate('responses')
-		// .populate(['firstMessage', 'owner', 'owner.profile'])
-		// .populate({path: 'owner.username', select: 'username'})
-		// .populate('owner', 'username')
-		// .populate('owner', 'profile')
 		.then(handle404)
 		.then((threads) => {
 			// console.log('threads in .then: ', threads)
@@ -84,8 +74,6 @@ router.get('/threads/:id', requireToken, (req, res, next) => {
 	// req.params.id will be set based on the `:id` in the route
 	Thread.findById(req.params.id)
 		.populate('author', 'username')
-		// .populate('firstMessage', 'owner')
-		// .populate('replies', 'owner')
 		.populate({
 			path: 'firstMessage',
 			populate: {
@@ -103,10 +91,7 @@ router.get('/threads/:id', requireToken, (req, res, next) => {
 					model: 'Profile'
 				}
 			}
-			//! currently passing an object to frontend because of user populate (may be referencing it somewhere in react) NEED TO FIX
 		})
-		// .populate('responses')
-		// .populate('firstMessage')
 		.then(handle404)
 		// if `findById` is succesful, respond with 200 and "thread" JSON
 		.then((thread) => { 
