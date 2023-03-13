@@ -47,6 +47,7 @@ router.get('/threads', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
+// GET THREADS FROM CHANNEL
 router.get('/threads/channel', requireToken, (req, res, next) => {
 	// console.log('req.query.threads: ', req.query.threads)
 	let threadString = req.query.threads
@@ -109,7 +110,7 @@ router.get('/threads/:id', requireToken, (req, res, next) => {
 		.then(handle404)
 		// if `findById` is succesful, respond with 200 and "thread" JSON
 		.then((thread) => { 
-			console.log('thread: ', thread)
+			// console.log('thread: ', thread)
 			res.status(200).json({ thread: thread.toObject() })
 		})
 		// if an error occurs, pass it to the handler
@@ -123,7 +124,7 @@ router.post('/threads', requireToken, (req, res, next) => {
 	console.log('req.user')
 	req.body.thread.owner = req.user.id
 	
-	console.log('req.body in create thread: ', req.body)
+	// console.log('req.body in create thread: ', req.body)
 	Thread.create(req.body.thread)
 		// respond to succesful `create` with status 201 and JSON of new "thread"
 		.then((thread) => {
