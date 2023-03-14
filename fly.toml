@@ -9,7 +9,7 @@ processes = []
 [env]
   PORT = "8080"
   MONGODB_URI = "mongodb+srv://rectorjordan:GDoIfDJQzJrsRfdU@blink.z5pmlby.mongodb.net/blink?retryWrites=true&w=majority"
-  CLIENT_ORIGIN = "https://main--gorgeous-cranachan-8bbf33.netlify.app/sign-in"
+  CLIENT_ORIGIN = "https://main--gorgeous-cranachan-8bbf33.netlify.app"
 
 [experimental]
   auto_rollback = true
