@@ -113,6 +113,11 @@ io.on('connection', (socket) => {
 		socket.broadcast.emit('triggerRepliesRefresh')
 	})
 
+	socket.on('refreshMembers', () => {
+		console.log('refresh members ran *********************************')
+		socket.broadcast.emit('triggerMembersRefresh')
+	})
+
 	socket.on('disconnect', () => {
 		console.log('user disconnected, socket.id: ', socket.id)
 	})
