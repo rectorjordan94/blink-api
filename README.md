@@ -132,9 +132,9 @@ const messageSchema = new mongoose.Schema({
 
 ## Wireframes
 
-### Home
+### Channel
 
-![HOME](images/Wireframe%20-%201.png)
+![HOME](images/channel.png)
 
 ### Auth
 
