@@ -1,7 +1,6 @@
-# BLINK
+# BLINK - API
 
 ## [Deployed Link](https://blinkchat.netlify.app/)
-
 
 ## Overview
 
