@@ -1,8 +1,11 @@
-# Slack Clone
+# BLINK
+
+## [Deployed Link](https://blinkchat.netlify.app/)
+
 
 ## Overview
 
-Slack clone app where users can create and join different channels and chat with other users. Built with the MERN stack (Mongoose, Express, React, Node.js) using the MVC system for organizing the code.
+Full-stack Slack clone where users can create and join different channels and chat with other users in real-time. Built with the MERN stack using the MVC system for organizing the code. Utilizes socket.io for bidirectional event-based communication between clients and server for chat functionality. Created with HTML, CSS, JavaScript, React, MongoDB, Mongoose, Express, and Node.js.
 
 ## User Stories
 ```
@@ -32,105 +35,46 @@ Slack clone app where users can create and join different channels and chat with
     - Socket.io (library that enables low-latency, bidirectional, and event-based communication between a client and a server -- for chat functionality)
 
 ## ERD
-![ERD](images/ERD%20(1).png)
-
-## Models
-```js 
-const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true
-    },
-    email: {
-        type: String,
-        required: true
-    },
-    password: {
-        type: String, 
-        required: true
-    }, 
-    channels: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Channel'
-    }],
-    messages: [messageSchema],
-    pronouns: { type: String },
-    location: { type: String }
-}, {
-    toObject: {
-        transform: (_doc, user) => {
-            delete user.password
-            return user
-        }
-    }
-})
-
-const channelSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    description: {
-        type: String
-    },
-    members: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }],
-    owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    messages: [messageSchema]
-})
-
-const messageSchema = new mongoose.Schema({
-    author: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    content: {
-        type: String,
-        required: true
-    }
-}, {
-    timestamps: true
-})
-```
+![ERD](images/BLINK_ERD.png)
 
 ## Route Tables
 
-### Authentication: Users
+### Users
 
-| **URL**              | **HTTP Verb** |**Actions**|
-|----------------------|---------------|-----------|
-| /auth/signup         | POST          | new       | 
-| /auth/login          | POST          | create    | 
-| /auth/logout         | DELETE        | destroy   |      
-| /auth/:id            | GET           | show      |        
-| /auth/:id            | PATCH         | update    |        
+| **URL**              | **HTTP Verb** |**Actions**
+|----------------------|---------------|-----------
+| /sign-out            | DELETE        | destroy   
+| /change-password     | PATCH         | update         
+| /sign-in             | POST          | create           
+| /sign-up             | POST          | new               
+| /users               | GET           | index             
 
 ### Channels
 
-| **URL**             | **HTTP Verb** |**Actions**|
-|---------------------|---------------|-----------|
-| /channels              | GET           | index
-| /channels/:id          | GET           | show
-| /channels/             | POST          | create
-| /channels/:id          | PATCH         | update      
+| **URL**                                   | **HTTP Verb** |**Actions**
+|-------------------------------------------|---------------|-----------
+| /channels                                 | GET           | index
+| /channels/mine                            | GET           | index(user's)
+| /channels/:id                             | GET           | show
+| /channels/                                | POST          | create
+| /channels/:id                             | PATCH         | update      
+| /channels/thread/:channelId/:threadId     | PATCH         | update(add thread to channel)   
+| /channels/:channelId/:addOrRemove/:userId | PATCH         | update(add/remove member to/from channel)   
 | /channels/:id          | DELETE        | destroy     
 
-### Messages
+### Threads
 
-| **URL**               | **HTTP Verb** |**Actions**|
-|-----------------------|---------------|-----------|
-| /messages/            | GET           | index
-| /messages/:channelId  | POST          | create
-| /messages/:channelId/ | PATCH         | update  
-| /messages/:channelId/ | DELETE        | destroy  
+| **URL**                       | **HTTP Verb** |**Actions**
+|-------------------------------|---------------|-----------
+| /threads                      | GET           | index
+| /threads/channel              | GET           | index(threads in channel)
+| /threads/:id/                 | GET           | show  
+| /threads                      | POST          | create  
+| /threads/:id                  | PATCH         | update  
+| /threads/:threadId/:messageId | PATCH         | update(reply to a thread)
+| /threads/:threadId/:channelId | DELETE        | destroy(delete thread from channel)
 
-## Wireframes
+## Screenshots
 
 ### Channel
 
