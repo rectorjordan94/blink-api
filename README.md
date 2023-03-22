@@ -76,17 +76,25 @@ Full-stack Slack clone where users can create and join different channels and ch
 
 ## Screenshots
 
-### Channel
+### Message Area
 
-![HOME](images/channel.png)
+![MESSAGE_AREA](images/channel.png)
 
 ### Auth
 
-![HOME](images/Wireframe%20-%202.png)
+![AUTH](images/AUTH.png)
 
 ### Profile
 
-![HOME](images/Wireframe%20-%203.png)
+![PROFILE](images/PROFILE.png)
+
+### Channel Show
+
+![CHANNEL_SHOW](images/CHANNEL_SEARCH.png)
+
+### Thread
+
+![THREAD](images/THREAD.png)
 
 ## Component Diagram
 
